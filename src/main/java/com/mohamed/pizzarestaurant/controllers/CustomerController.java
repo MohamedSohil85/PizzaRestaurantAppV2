@@ -23,9 +23,11 @@ public class CustomerController {
     @Autowired
     public CustomerController(CustomerRepository customerRepository, ShoppingCartRepository shoppingCartRepository) {
         this.customerRepository = customerRepository;
-
         this.shoppingCartRepository = shoppingCartRepository;
     }
+
+
+
 
     @PostMapping(value = "/Customer",produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> saveNewCustomer(@RequestBody Customer customer){

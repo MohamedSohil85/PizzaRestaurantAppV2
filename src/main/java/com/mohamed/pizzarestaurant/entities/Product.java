@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,7 +18,8 @@ public class Product implements Serializable {
     private String productName;
     private String ingredients;
     private float price;
-    private int rating;
+    @OneToMany
+    List<Reviews> reviewsList;
     @ManyToOne
     private Orders order;
 
