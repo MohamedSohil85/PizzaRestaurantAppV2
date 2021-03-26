@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @RestController
 public class CustomerController {
@@ -59,5 +60,12 @@ public class CustomerController {
             customer.setAddress(newcCustomer.getAddress());
             return new ResponseEntity<>(customerRepository.save(customer),HttpStatus.CREATED);
         }).orElse(ResponseEntity.noContent().build());
+    }
+    @GetMapping(value = "/customer/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+    Customer getCustomerById(@PathVariable("id")Long id){
+        List<Customer>customers=customerRepository.findAll();
+       Customer customer= customers.stream().filter(customer1 -> customer1.getId().equals(id)).findAny().get();
+       return customer;
+
     }
 }
