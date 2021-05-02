@@ -14,8 +14,8 @@ import java.util.List;
 public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long ProductID;
-    private String productName;
+    private Long pizzaID;
+    private String pizzaName;
     private String ingredients;
     private float price;
     @OneToMany

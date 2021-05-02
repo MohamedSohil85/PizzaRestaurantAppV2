@@ -14,12 +14,13 @@ public class ProductController {
 
     final ProductRepository productRepository;
 
+
     public ProductController(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
     @PostMapping(value = "/product",produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity saveNewProduct(@RequestBody Product product){
-        Optional<Product>productOptional=productRepository.findByProductName(product.getProductName());
+        Optional<Product>productOptional=productRepository.findByProductName(product.getPizzaName());
         if(productOptional.isPresent()){
             return new ResponseEntity(HttpStatus.FOUND);
         }

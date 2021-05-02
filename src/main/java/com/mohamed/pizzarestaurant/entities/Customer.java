@@ -9,6 +9,7 @@ import java.util.List;
 @Setter
 @Getter
 @ToString
+@EqualsAndHashCode
 @Entity
 public class Customer implements Serializable {
 
@@ -25,4 +26,5 @@ public class Customer implements Serializable {
 
     public Customer() {
     }
+
 }
