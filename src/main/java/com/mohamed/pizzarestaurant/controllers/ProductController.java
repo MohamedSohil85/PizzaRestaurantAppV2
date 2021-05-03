@@ -1,6 +1,8 @@
 package com.mohamed.pizzarestaurant.controllers;
 import com.mohamed.pizzarestaurant.entities.Product;
+import com.mohamed.pizzarestaurant.exceptions.ResourceNotFoundException;
 import com.mohamed.pizzarestaurant.repositories.ProductRepository;
+import org.hibernate.ResourceClosedException;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,20 +29,25 @@ public class ProductController {
         return new ResponseEntity(productRepository.save(product),HttpStatus.CREATED);
     }
     @GetMapping(value = "/products",produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity loadAllProducts(){
+    ResponseEntity loadAllProducts() throws ResourceNotFoundException {
         List<Product>products=(List)productRepository.findAll(Sort.by(Sort.Direction.ASC,"ProductName"));
         if(products.isEmpty()){
-            return ResponseEntity.noContent().build();
+            throw new ResourceNotFoundException("List is Empty");
         }
         return ResponseEntity.ok().body(products);
     }
     @PutMapping(value = "/sale/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity setNewPrice(@PathVariable("name")String productName,@RequestBody Product newProduct){
+    public Product setNewPrice(@PathVariable("name")String productName,@RequestBody Product newProduct) throws ResourceNotFoundException{
         return productRepository.findByProductName(productName).map(product -> {
             product.setPrice(newProduct.getPrice());
-            return new ResponseEntity(productRepository.save(product),HttpStatus.CREATED);
-        }).orElse(ResponseEntity.noContent().build());
+            return productRepository.save(product);
+        }).orElseThrow(()->new ResourceNotFoundException("Product not found"));
     }
-
+   @GetMapping(value = "product/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public Product getProductById(@PathVariable("id")Long id)throws ResourceNotFoundException{
+       return productRepository
+               .findById(id)
+               .orElseThrow(()->new ResourceClosedException("Product with Id"+id+"not found"));
+   }
 
 }
