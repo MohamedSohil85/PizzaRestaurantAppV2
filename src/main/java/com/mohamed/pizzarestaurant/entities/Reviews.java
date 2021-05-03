@@ -2,6 +2,7 @@ package com.mohamed.pizzarestaurant.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.util.Date;
 
 @Entity
 @AllArgsConstructor
+@NoArgsConstructor
 @Setter
 @Getter
 public class Reviews implements Serializable {
@@ -22,9 +24,7 @@ public class Reviews implements Serializable {
     @ManyToOne
     private Product product;
 
-    public Reviews() {
 
-    }
 
 
 }
