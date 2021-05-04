@@ -33,7 +33,7 @@ public class OrderControllers {
     }
     @PostMapping(value = "/orderByProductName/{productName}/Order/{token}",produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity makeOrder(@PathVariable("productName")String productName,@PathVariable("token")String token,@RequestBody Orders order){
-        return productRepository.findByProductName(productName).map(product -> {
+        return productRepository.findByPizzaName(productName).map(product -> {
             Optional<Customer>customerOptional=customerRepository.findCustomerByToken(token);
             order.setCustomer(customerOptional.get());
             order.getProduct().add(product);

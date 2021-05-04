@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long> {
-    Optional<Product>findByProductName(String name);
+    Optional<Product>findByPizzaName(String name);
 
 }

@@ -22,7 +22,7 @@ public class ProductController {
     }
     @PostMapping(value = "/product",produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity saveNewProduct(@RequestBody Product product){
-        Optional<Product>productOptional=productRepository.findByProductName(product.getPizzaName());
+        Optional<Product>productOptional=productRepository.findByPizzaName(product.getPizzaName());
         if(productOptional.isPresent()){
             return new ResponseEntity(HttpStatus.FOUND);
         }
@@ -38,7 +38,7 @@ public class ProductController {
     }
     @PutMapping(value = "/sale/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
     public Product setNewPrice(@PathVariable("name")String productName,@RequestBody Product newProduct) throws ResourceNotFoundException{
-        return productRepository.findByProductName(productName).map(product -> {
+        return productRepository.findByPizzaName(productName).map(product -> {
             product.setPrice(newProduct.getPrice());
             return productRepository.save(product);
         }).orElseThrow(()->new ResourceNotFoundException("Product not found"));
