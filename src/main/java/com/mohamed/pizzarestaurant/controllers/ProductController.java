@@ -1,6 +1,8 @@
 package com.mohamed.pizzarestaurant.controllers;
+import com.mohamed.pizzarestaurant.entities.Category;
 import com.mohamed.pizzarestaurant.entities.Product;
 import com.mohamed.pizzarestaurant.exceptions.ResourceNotFoundException;
+import com.mohamed.pizzarestaurant.repositories.CategoryRepository;
 import com.mohamed.pizzarestaurant.repositories.ProductRepository;
 import org.hibernate.ResourceClosedException;
 import org.springframework.data.domain.Sort;
@@ -15,17 +17,22 @@ import java.util.Optional;
 public class ProductController {
 
     final ProductRepository productRepository;
+    final CategoryRepository categoryRepository;
 
-
-    public ProductController(ProductRepository productRepository) {
+    public ProductController(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
-    @PostMapping(value = "/product",produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity saveNewProduct(@RequestBody Product product){
-        Optional<Product>productOptional=productRepository.findByPizzaName(product.getPizzaName());
+    @PostMapping(value = "/product/{categoryId}",produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity saveNewProduct(@RequestBody Product product,@PathVariable("categoryId")Long id)throws ResourceNotFoundException{
+        Optional<Product>productOptional=productRepository.findByName(product.getName());
         if(productOptional.isPresent()){
             return new ResponseEntity(HttpStatus.FOUND);
         }
+        Optional<Category>categoryOptional=categoryRepository.findById(id);
+        Category category=categoryOptional.orElseThrow(()->new ResourceNotFoundException("Category with id :"+id+" not found"));
+        category.getProducts().add(product);
+        product.setCategory(category);
         return new ResponseEntity(productRepository.save(product),HttpStatus.CREATED);
     }
     @GetMapping(value = "/products",produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,9 +43,9 @@ public class ProductController {
         }
         return ResponseEntity.ok().body(products);
     }
-    @PutMapping(value = "/sale/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/changeprice/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
     public Product setNewPrice(@PathVariable("name")String productName,@RequestBody Product newProduct) throws ResourceNotFoundException{
-        return productRepository.findByPizzaName(productName).map(product -> {
+        return productRepository.findByName(productName).map(product -> {
             product.setPrice(newProduct.getPrice());
             return productRepository.save(product);
         }).orElseThrow(()->new ResourceNotFoundException("Product not found"));

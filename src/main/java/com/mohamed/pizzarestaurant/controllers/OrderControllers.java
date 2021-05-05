@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class OrderControllers {
@@ -33,7 +34,7 @@ public class OrderControllers {
     }
     @PostMapping(value = "/orderByProductName/{productName}/Order/{token}",produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity makeOrder(@PathVariable("productName")String productName,@PathVariable("token")String token,@RequestBody Orders order){
-        return productRepository.findByPizzaName(productName).map(product -> {
+        return productRepository.findByName(productName).map(product -> {
             Optional<Customer>customerOptional=customerRepository.findCustomerByToken(token);
             order.setCustomer(customerOptional.get());
             order.getProduct().add(product);
@@ -60,6 +61,8 @@ public class OrderControllers {
         return orderRepository.findById(orderId).map(order -> {
             shoppingCart.getOrders().add(order);
             order.setShoppingCart(shoppingCart);
+            double sum= orderRepository.findAll().stream().mapToDouble(Orders::getTotal).sum();
+            shoppingCart.setTotal(sum);
             return new ResponseEntity<>(orderRepository.save(order),HttpStatus.CREATED);
         }).orElse(new ResponseEntity(HttpStatus.NO_CONTENT));
     }

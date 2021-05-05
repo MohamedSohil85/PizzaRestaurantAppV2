@@ -2,6 +2,7 @@ package com.mohamed.pizzarestaurant.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class ShoppingCart implements Serializable {
     @Id
@@ -18,7 +20,6 @@ public class ShoppingCart implements Serializable {
     private Long shoppingcartID;
     @OneToMany
     private List<Orders> orders;
+    private double total;
 
-    public ShoppingCart() {
-    }
 }

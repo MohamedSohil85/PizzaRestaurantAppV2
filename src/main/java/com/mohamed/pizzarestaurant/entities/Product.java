@@ -14,15 +14,15 @@ import java.util.List;
 public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long pizzaID;
-    private String pizzaName;
+    private Long productID;
+    private String Name;
     private String ingredients;
     private float price;
     @OneToMany
     List<Reviews> reviewsList;
     @ManyToOne
     private Orders order;
+    @ManyToOne
+    private Category category;
 
-    public Product() {
-    }
 }
