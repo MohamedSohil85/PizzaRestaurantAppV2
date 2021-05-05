@@ -3,6 +3,7 @@ package com.mohamed.pizzarestaurant.controllers;
 import com.mohamed.pizzarestaurant.entities.Customer;
 import com.mohamed.pizzarestaurant.entities.Orders;
 import com.mohamed.pizzarestaurant.entities.ShoppingCart;
+import com.mohamed.pizzarestaurant.exceptions.ResourceNotFoundException;
 import com.mohamed.pizzarestaurant.repositories.CustomerRepository;
 import com.mohamed.pizzarestaurant.repositories.OrderRepository;
 import com.mohamed.pizzarestaurant.repositories.ProductRepository;
@@ -55,14 +56,21 @@ public class OrderControllers {
         List<Orders> orderList=orderRepository.findAll(Sort.by(Sort.Direction.ASC,"OrderDate"));
         return new ResponseEntity(orderList,HttpStatus.FOUND);
     }
-    @PostMapping(value = "/addToShoppingCardById/{orderId}/token/{token}",produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity saveShoppingCard(@PathVariable("orderId")Long orderId,@PathVariable("token")String token, @RequestBody ShoppingCart shoppingCart){
+    @PostMapping(value = "Cart/{customerId}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ShoppingCart createShoppingCart(@PathVariable("customerId")Long id,@RequestBody ShoppingCart shoppingCart)throws ResourceNotFoundException{
+        Optional<Customer>customerOptional=customerRepository.findById(id);
+        Customer customer=customerOptional.orElseThrow(()->new ResourceNotFoundException("Customer not found"));
+        shoppingCart.setCustomer(customer);
+    return  shoppingCartRepository.save(shoppingCart);
+    }
+    @PostMapping(value = "/Cart/{cartId}/order/{orderId}",produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity saveToShoppingCard(@PathVariable("orderId")Long orderId,@PathVariable("orderId")Long id){
         return orderRepository.findById(orderId).map(order -> {
-            Optional<Customer>customerOptional=customerRepository.findCustomerByToken(token);
-            shoppingCart.setCustomer(customerOptional.get());
+            Optional<ShoppingCart>shoppingCartOptional=shoppingCartRepository.findById(id);
+            ShoppingCart shoppingCart=shoppingCartOptional.get();
             shoppingCart.getOrders().add(order);
             order.setShoppingCart(shoppingCart);
-            double sum= orderRepository.findAll().stream().filter(orders -> orders.getCustomer().getToken().equalsIgnoreCase(token)).mapToDouble(Orders::getTotal).sum();
+            double sum= orderRepository.findAll().stream().mapToDouble(Orders::getTotal).sum();
             shoppingCart.setTotal(sum);
             return new ResponseEntity<>(orderRepository.save(order),HttpStatus.CREATED);
         }).orElse(new ResponseEntity(HttpStatus.NO_CONTENT));
