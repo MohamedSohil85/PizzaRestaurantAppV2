@@ -32,11 +32,10 @@ public class OrderControllers {
         this.productRepository = productRepository;
         this.shoppingCartRepository = shoppingCartRepository;
     }
-    @PostMapping(value = "/orderByProductName/{productName}/Order/{token}",produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity makeOrder(@PathVariable("productName")String productName,@PathVariable("token")String token,@RequestBody Orders order){
+    @PostMapping(value = "/orderByProductName/{productName}/Order",produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity makeOrder(@PathVariable("productName")String productName,@RequestBody Orders order){
         return productRepository.findByName(productName).map(product -> {
-            Optional<Customer>customerOptional=customerRepository.findCustomerByToken(token);
-            order.setCustomer(customerOptional.get());
+
             order.getProduct().add(product);
             order.setOrderDate(new Date());
             order.setTotal(product.getPrice()* order.getQuantity());
@@ -56,12 +55,14 @@ public class OrderControllers {
         List<Orders> orderList=orderRepository.findAll(Sort.by(Sort.Direction.ASC,"OrderDate"));
         return new ResponseEntity(orderList,HttpStatus.FOUND);
     }
-    @PostMapping(value = "/addToShoppingCardById/{orderId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity saveShoppingCard(@PathVariable("orderId")Long orderId, @RequestBody ShoppingCart shoppingCart){
+    @PostMapping(value = "/addToShoppingCardById/{orderId}/token/{token}",produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity saveShoppingCard(@PathVariable("orderId")Long orderId,@PathVariable("token")String token, @RequestBody ShoppingCart shoppingCart){
         return orderRepository.findById(orderId).map(order -> {
+            Optional<Customer>customerOptional=customerRepository.findCustomerByToken(token);
+            shoppingCart.setCustomer(customerOptional.get());
             shoppingCart.getOrders().add(order);
             order.setShoppingCart(shoppingCart);
-            double sum= orderRepository.findAll().stream().mapToDouble(Orders::getTotal).sum();
+            double sum= orderRepository.findAll().stream().filter(orders -> orders.getCustomer().getToken().equalsIgnoreCase(token)).mapToDouble(Orders::getTotal).sum();
             shoppingCart.setTotal(sum);
             return new ResponseEntity<>(orderRepository.save(order),HttpStatus.CREATED);
         }).orElse(new ResponseEntity(HttpStatus.NO_CONTENT));

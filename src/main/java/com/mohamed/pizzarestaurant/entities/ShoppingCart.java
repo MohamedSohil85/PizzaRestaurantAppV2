@@ -18,6 +18,8 @@ public class ShoppingCart implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long shoppingcartID;
+    @ManyToOne
+    private Customer customer;
     @OneToMany
     private List<Orders> orders;
     private double total;
